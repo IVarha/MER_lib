@@ -38,5 +38,10 @@ class MER_data():
     def get_data(self):
         return self.__data
 
+
+    def set_data(self,data):
+        self.__data = data
+
     def get_freqs(self):
         return self._freqs
+

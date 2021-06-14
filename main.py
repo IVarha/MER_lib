@@ -20,10 +20,10 @@ if __name__ == '__main__':
     runner = proc.Processor()
     runner.set_data(a)
     runner.set_processes([ad.max_diff_psd])
-    runner.run()
+    a =runner.run()
     dat = a.get_data()
 
-    fig = plt.plot(dat[0,0:100])
+    fig = plt.plot(dat[0])
     plt.show()
 
 
