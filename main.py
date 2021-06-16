@@ -15,7 +15,13 @@ def print_hi(name):
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     print_hi('PyCharm')
-    a = dat.MER_data("/data/home/shared/dbs/MRI/Ontario/Data_202012/selected_MER/sub-P061/ses-perisurg/ieeg/sub-P061_ses-perisurg_run-02_ieeg.edf")
+
+    #parse_parameters
+    n = dat.parse_anatomical_labels("/home/varga/processing_data/participants-ED2.xlsx.ods")
+
+
+    a = dat.MER_data("/data/home/shared/dbs/MRI/Ontario/Data_202012/selected_MER/sub-P061/ses-perisurg/ieeg/",
+                     "sub-P061_ses-perisurg_run-02*")
 
     runner = proc.Processor()
     runner.set_data(a)

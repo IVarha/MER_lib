@@ -23,6 +23,8 @@ def max_diff_psd(data):
         res_data.append(data_sub)
 
     data.set_data(np.array(res_data))
+
+    data.mask_label_threshold = np.array(res_data) > psd_thr
     return data
 
 def _compute_features(signal,start_end,freq):
@@ -299,19 +301,10 @@ def _compute_features(signal,start_end,freq):
                   4.45853802563628e-09, 4.40110475476902e-09, 4.37467329232380e-09, 4.41037858050479e-09,
                   2.21845864714005e-09]
 
-    psd = sig.welch(segment,nperseg=NFFT/2,nfft=NFFT)
+    psd = sig.welch(segment,nperseg = NFFT / 2,nfft = NFFT)
 
     npsd = psd[1] / sum(psd[1])
 
-
-    fv = max(npsd)
+    fv = max(np.abs(npsd-meanClnPSD))
 
     return fv
-
-
-
-
-
-
-
-    pass
