@@ -3,6 +3,8 @@ import math
 import numpy as np
 
 import scipy.signal as sig
+
+
 def max_diff_psd(data):
 
 
@@ -22,7 +24,7 @@ def max_diff_psd(data):
             data_sub.append(feat)
         res_data.append(data_sub)
 
-    data.set_data(np.array(res_data))
+    #data.set_data(np.array(res_data))
 
     data.mask_label_threshold = np.array(res_data) > psd_thr
     return data

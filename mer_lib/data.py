@@ -5,7 +5,7 @@ import csv
 
 import numpy as np
 import os
-
+import math
 
 class MER_data():
 
@@ -85,7 +85,34 @@ class MER_data():
                 pass
         return [vals,depths]
 
+    def divide_1s_chunks(self):
 
+        a = [None] * len(self._freqs)
+        for i in range(len(self._freqs)):
+            if a[i] is None:
+                a[i] = []
+
+            seconds = math.ceil(self.__data[i].shape / self._freqs[i])
+            fs = self._freqs[i]
+            data_sub = []
+            for secs in range(seconds):
+                s_e = [int(secs * fs), min(int((secs + 1) * fs), int(self.__data[i].shape[0]))]  # start end
+                a[i].append(self.__data[i,s_e[0]:s_e[1]])
+        return a
+
+
+    def rescale_signals(self):
+        s = self.__data
+
+        for i in range(len(self.__electrode_description)):
+            mn = np.nanmin(s[i])
+            mx = np.nanmax(s[i])
+            cm = np.nanmean(s[i])
+
+            s[i] = (s[i] - mn)/(mx-mn) *(self.__electrode_description[i]['physical_max']
+                                         -self.__electrode_description[i]['physical_min'] ) + self.__electrode_description[i]['physical_min']
+
+        self.__data = s
 
 #parse labels from
 def parse_anatomical_labels(filename_xls):
@@ -153,3 +180,16 @@ def parse_anatomical_labels(filename_xls):
             a[np.where(a == "nil")] = np.nan
 
     return [subs,LS,RS]
+
+
+################process
+
+def demean_data(data):
+
+    da  = data.get_data()
+    mn1 =  da.mean(axis=1)
+    for i in range(mn1.shape[0]):
+        da[i,:] = da[i,:] - mn1[i]
+
+    data.set_data(da)
+    return data

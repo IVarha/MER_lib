@@ -5,7 +5,7 @@
 import mer_lib.data as dat
 import mer_lib.artefact_detection as ad
 import mer_lib.processor as proc
-
+import mer_lib.feature_extraction as fe
 import matplotlib.pyplot as plt
 def print_hi(name):
     # Use a breakpoint in the code line below to debug your script.
@@ -20,16 +20,18 @@ if __name__ == '__main__':
     n = dat.parse_anatomical_labels("/home/varga/processing_data/participants-ED2.xlsx.ods")
 
 
-    a = dat.MER_data("/data/home/shared/dbs/MRI/Ontario/Data_202012/selected_MER/sub-P061/ses-perisurg/ieeg/",
-                     "sub-P061_ses-perisurg_run-02*")
+    a = dat.MER_data("/data/home/shared/dbs/MRI/Ontario/Data_202012/selected_MER/sub-P060/ses-perisurg/ieeg/","sub-P060_ses-perisurg_run-01*")
+    a.rescale_signals()
 
     runner = proc.Processor()
     runner.set_data(a)
-    runner.set_processes([ad.max_diff_psd])
+    runner.set_processes([dat.demean_data,
+                          ad.max_diff_psd,
+                          fe.nrms_extraction])
     a =runner.run()
     dat = a.get_data()
 
-    fig = plt.plot(dat[0])
+    fig = plt.plot(dat[1])
     plt.show()
 
 
