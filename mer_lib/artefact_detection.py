@@ -1,9 +1,11 @@
 import math
 
 import numpy as np
+import statistics
 
 import scipy.signal as sig
-
+import scipy.io as io
+import statsmodels.tsa.stattools as st_tools
 
 def max_diff_psd(data):
 
@@ -26,8 +28,137 @@ def max_diff_psd(data):
 
     #data.set_data(np.array(res_data))
 
-    data.mask_label_threshold = np.array(res_data) > psd_thr
+    data.mask_label_threshold = np.array(res_data) < psd_thr
     return data
+
+
+def covariance_method(data):
+    threshold = 1.2
+
+    da = data.get_data()
+
+    fs = data.get_freqs()
+
+
+
+    resarr = []
+    for i in range(da.shape[0]):
+        res = _compute_cov(da[i],threshold,fs[i]/3)
+        resarr.append(res)
+    resarr = np.array(resarr)
+
+    da[resarr==0] = np.NAN
+
+    res_markings = []
+    for i in range(da.shape[0]):
+        seconds = math.ceil(da[i].shape/fs[i])
+        fse = fs[i]
+        data_sub = []
+        for secs in range(seconds):
+            s_e = [int(secs*fse), min(int((secs+1)*fse),int(da[i].shape[0]))]  #start end
+            if not resarr[i, s_e[0]:s_e[1]].min():
+                data_sub.append(0)
+            else:
+                data_sub.append(1)
+        res_markings.append(data_sub)
+
+    data.set_data(da)
+    data.mask_label_threshold = np.array(res_markings)
+    return data
+
+
+
+
+    pass
+
+
+def _compute_cov(signal, threshold, segm_len):
+    #normalise
+    signal_t= (signal- np.nanmean(signal))/np.nanstd(signal)
+
+
+
+    seconds = math.ceil(signal_t.shape[0] / segm_len)
+
+    indices = []
+    data_sub = []
+    for secs in range(seconds):
+        s_e = [int(secs * segm_len), min(int((secs + 1) * segm_len), int(signal_t.shape[0]))]  # start end
+        indices.append(s_e)
+        data_sub.append(signal_t[s_e[0]:s_e[1]])
+    res_data = data_sub
+
+    covs = []
+    for col in range(len(res_data)):
+
+        tmp = st_tools.acovf(res_data[col])
+        #tmp = tmp[round(tmp.shape[0]/2):tmp.shape[0]]
+        covs.append(tmp)
+    covs = np.array(covs).transpose()
+    variances= np.var(covs,axis=0)
+
+    dists_raw = np.zeros((variances.shape[0],variances.shape[0]))
+    for i in range(len(variances)):
+        for j in range(i,len(variances)):
+            if i == j:
+                #distances[i,j] = 0
+                dists_raw[i,j] = 0
+            else:
+                tmp = max([variances[i],variances[j]])/min([variances[i],variances[j]])
+                dists_raw[i,j ] = tmp
+                dists_raw[j, i] = tmp
+                # if tmp > threshold:
+                #     distances[i, j] = 0
+                #     distances[j, i] = 0
+                # else:
+                #     distances[i, j] = 1
+                #     distances[j, i] = 1
+
+    dist_mask = dists_raw < threshold
+    #
+    # Longest segment
+    #
+    comp = np.zeros((dist_mask.shape[0]))
+    actual_component = 0
+    while (0 in comp):
+
+        op = [np.where(comp == 0)[0][0]]
+        actual_component = actual_component +1
+        closed = []
+        while (len(op) > 0):
+            comp[op[0]] = actual_component
+
+            #adjastent elements derived from row or collumn
+            adj_to_op = dist_mask[op[0],:]
+
+            children = np.where(adj_to_op == 1)[0]
+            for i in range(children.shape[0]):
+                if not (( children[i] in op ) or (children[i] in closed)):
+                    op.append(children[i])
+
+            closed.append(op[0])
+            op.pop(0)
+        pass
+    pass
+
+    comp_len = np.zeros((comp.shape[0]))
+    for cur in range(comp_len.shape[0]):
+        comp_len[cur] = sum(comp==cur)
+    ind_max = np.where(comp_len == max(comp_len))[0][0]
+
+    resarr = np.zeros((signal.shape[0]))
+    for i in range(len(indices)):
+        if comp[i] == ind_max:
+            resarr[indices[i][0]:indices[i][1]] = 1
+    return resarr
+
+
+
+
+
+
+
+
 
 def _compute_features(signal,start_end,freq):
 

@@ -23,7 +23,7 @@ def nrms_extraction( data):
         res[i] = []
         for j in range(len(a[i])):
 
-            if msk_threshold[i][j] == False:
+            if msk_threshold[i][j] == True:
                 tmp = np.sqrt(np.nanmean(np.power(a[i][j],2)))
                 res[i].append(tmp)
 

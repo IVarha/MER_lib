@@ -193,3 +193,12 @@ def demean_data(data):
 
     data.set_data(da)
     return data
+
+def normalise_mean_std(data):
+    da  = data.get_data()
+    mn1 =  np.nanmean(da,axis=1)
+    cov = np.nanstd(da,axis=1)
+    for i in range(mn1.shape[0]):
+        da[i,:] = (da[i,:] - mn1[i])/cov[i]
+    data.set_data(da)
+    return data
