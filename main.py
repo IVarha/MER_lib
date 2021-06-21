@@ -16,11 +16,13 @@ def print_hi(name):
 if __name__ == '__main__':
     print_hi('PyCharm')
 
+
     #parse_parameters
     n = dat.parse_anatomical_labels("/home/varga/processing_data/participants-ED2.xlsx.ods")
 
 
     a = dat.MER_data("/data/home/shared/dbs/MRI/Ontario/Data_202012/selected_MER/sub-P060/ses-perisurg/ieeg/","sub-P060_ses-perisurg_run-01*")
+    a.get_anat_landmarks()
     #a.rescale_signals()
 
     runner = proc.Processor()
@@ -28,11 +30,11 @@ if __name__ == '__main__':
     runner.set_processes([
                           ad.covariance_method,
                           dat.normalise_mean_std,
-                          fe.nrms_extraction])
+                          fe.rms_extraction])
     a =runner.run()
     dat = a.get_data()
 
-    fig = plt.plot(dat[1])
+    fig = plt.plot(a.distances,a.extracted_features[2])
     plt.show()
 
 

@@ -39,31 +39,55 @@ def covariance_method(data):
 
     fs = data.get_freqs()
 
+    [times,_] = data.get_anat_landmarks()
+    ###create subdivisions in dataset
+    ###
+    ###
+    subdivisions = []
+
+    for i in range(len(times)):
+        if i+1 < len(times):
+            for e_ind in range(da.shape[0]):
+                freq = fs[e_ind]
+                if len(subdivisions) < e_ind+1:
+                    subdivisions.append([])
+                subdivisions[e_ind].append(da[e_ind,int(freq*times[i]):int(freq*times[i+1])])
+        else:
+            for e_ind in range(da.shape[0]):
+                freq = fs[e_ind]
+                if len(subdivisions) < e_ind:
+                    subdivisions.append([])
+                subdivisions[e_ind].append(da[e_ind,int(freq*times[i]):])
+
+
 
 
     resarr = []
     for i in range(da.shape[0]):
-        res = _compute_cov(da[i],threshold,fs[i]/3)
-        resarr.append(res)
+        tmp = []
+        for j in range(len(times)):
+            res = _compute_cov(subdivisions[i][j],threshold,fs[i]/3)
+            tmp.append(res)
+        resarr.append(tmp)
     resarr = np.array(resarr)
-
+    resarr = resarr.reshape((resarr.shape[0],resarr.shape[1]*resarr.shape[2]))
     da[resarr==0] = np.NAN
 
     res_markings = []
-    for i in range(da.shape[0]):
-        seconds = math.ceil(da[i].shape/fs[i])
-        fse = fs[i]
-        data_sub = []
-        for secs in range(seconds):
-            s_e = [int(secs*fse), min(int((secs+1)*fse),int(da[i].shape[0]))]  #start end
-            if not resarr[i, s_e[0]:s_e[1]].min():
-                data_sub.append(0)
-            else:
-                data_sub.append(1)
-        res_markings.append(data_sub)
+    # for i in range(da.shape[0]):
+    #     seconds = math.ceil(da[i].shape/fs[i])
+    #     fse = fs[i]
+    #     data_sub = []
+    #     for secs in range(seconds):
+    #         s_e = [int(secs*fse), min(int((secs+1)*fse),int(da[i].shape[0]))]  #start end
+    #         if not resarr[i, s_e[0]:s_e[1]].min():
+    #             data_sub.append(0)
+    #         else:
+    #             data_sub.append(1)
+    #     res_markings.append(data_sub)
 
     data.set_data(da)
-    data.mask_label_threshold = np.array(res_markings)
+    data.mask_label_threshold = np.array(resarr)
     return data
 
 

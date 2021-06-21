@@ -46,6 +46,7 @@ class MER_data():
         newone = type(self)()
         newone.__data = self.__data.copy()
         newone._freqs = self._freqs.copy()
+        newone.__read_data = self.__read_data
         newone.__electrode_description = self.__electrode_description.copy()
         newone.__is_read = self.__is_read
         newone._recording_data_notations = self._recording_data_notations
@@ -60,6 +61,27 @@ class MER_data():
 
     def get_freqs(self):
         return self._freqs
+
+
+
+
+    def get_anat_landmarks(self):
+        lm = self.__read_data[2]['annotations']
+
+        times = []
+        depths = []
+
+        for i in range(len(lm)):
+            times.append(lm[i][0])
+            depths.append(round(float(lm[i][2].split(' ')[1]),1))
+
+        return [times,depths]
+
+
+
+
+
+
 
 
     def _read_anatomical(self,dirname, patern_name):
