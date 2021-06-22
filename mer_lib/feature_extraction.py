@@ -49,3 +49,22 @@ def rms_extraction( data):
     data.extracted_features = np.array(res)
     data.distances = uniq_distances
     return data
+
+def nrms_calculation( data):
+
+    if not hasattr(data,"distances"):
+        data = rms_extraction(data)
+
+    mask = np.array(data.distances) < -4
+    res_nrms = []
+    for i in range(data.extracted_features.shape[0]):
+        t_dat = data.extracted_features[i,mask]
+        mn = np.nanmean(t_dat)
+        res_nrms.append(data.extracted_features[i]/mn)
+    data.extracted_features = np.array(res_nrms)
+    return data
+
+
+
+
+

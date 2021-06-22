@@ -30,11 +30,11 @@ if __name__ == '__main__':
     runner.set_processes([
                           ad.covariance_method,
                           dat.normalise_mean_std,
-                          fe.rms_extraction])
+                          fe.nrms_calculation])
     a =runner.run()
     dat = a.get_data()
-
-    fig = plt.plot(a.distances,a.extracted_features[2])
+    for i in range(a.extracted_features.shape[0]):
+        plt.plot(a.distances,a.extracted_features[i])
     plt.show()
 
 

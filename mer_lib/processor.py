@@ -16,8 +16,11 @@ class Processor():
     def set_processes(self,processes):
         self.__processes = processes
 
-    def run(self,**kwargs):
-        a = copy.copy(self.__data)
+    def run(self,data =None):
+        if data is None:
+            a = copy.copy(self.__data)
+        else:
+            a = data
         for i in range(len(self.__processes)):
             a = self.__processes[i](a)
 
