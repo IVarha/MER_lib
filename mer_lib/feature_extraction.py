@@ -1,5 +1,5 @@
 import numpy as np
-
+import matplotlib.pyplot as plt
 
 def rms_extraction(data):
     msk_threshold = data.mask_label_threshold
@@ -45,7 +45,9 @@ def rms_extraction(data):
 def nrms_calculation(data):
     if not hasattr(data, "distances"):
         data = rms_extraction(data)
-
+    # for i in range(data.extracted_features.shape[0]):
+    #     plt.plot(data.distances,data.extracted_features[i])
+    # plt.show()
     mask = np.array(data.distances) < -4
     res_nrms = []
     for i in range(data.extracted_features.shape[0]):

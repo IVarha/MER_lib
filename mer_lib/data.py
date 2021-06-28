@@ -72,15 +72,27 @@ class MER_data():
         depths = []
 
         for i in range(len(lm)):
-            times.append(lm[i][0])
+            times.append(round(float(lm[i][0]),1))
             depths.append(round(float(lm[i][2].split(' ')[1]),1))
 
         return [times,depths]
 
+    def get_electrode_index(self,name):
+        """Gets electrode index by its name"""
+        for i in range(len(self.__read_data[1])):
+            if self.__read_data[1][i]['label'] == name:
+                return i
 
 
+    def get_side(self):
+        return self.__read_data[2]['admincode']
 
+    def get_num_electrodes(self):
+        return  len(self.__read_data[1])
 
+    def get_electrode_name_by_index(self,index):
+        """Gets electrode name by its index"""
+        return self.__read_data[1][index]['label']
 
 
 
@@ -138,6 +150,11 @@ class MER_data():
 
 #parse labels from
 def parse_anatomical_labels(filename_xls):
+    """:return [ list of subjects, Left Side, Right Side ]
+    in Right Side [centr,ant,posterior,med, lateral ]
+    each of them have [TOP and BOTTOM] lists"""
+
+
     from pandas_ods_reader import read_ods
     df = read_ods(filename_xls, "surgical")
 
@@ -178,30 +195,40 @@ def parse_anatomical_labels(filename_xls):
     ###get subjects
     subs = df[sb].values.astype(np.int).tolist()
     ###get su
-    df[sb]
 
-    RS = [
-        [df[RCT].values,df[RCB].values],
-        [df[RAT].values, df[RAB].values],
-        [df[RPT].values, df[RPB].values],
-        [df[RMT].values, df[RMB].values],
-        [df[RLT].values, df[RLB].values]
-    ]
+    RS = {
+        "cen": {"top":df[RCT].values,"bot":df[RCB].values },
+        "ant": { "top":df[RAT].values,"bot":df[RAB].values},
+        "pos":{ "top":df[RPT].values,"bot":df[RPB].values},
+        "med":{ "top":df[RMT].values,"bot":df[RMB].values},
+        "lat":{ "top":df[RLT].values,"bot":df[RLB].values},
+    }
+    LS = {
+        "cen": {"top":df[LCT].values,"bot":df[LCB].values },
+        "ant": { "top":df[LAT].values,"bot":df[LAB].values},
+        "pos":{ "top":df[LPT].values,"bot":df[LPB].values},
+        "med":{ "top":df[LMT].values,"bot":df[LMB].values},
+        "lat":{ "top":df[LLT].values,"bot":df[LLB].values},
+    }
 
-    LS = [
-        [df[LCT].values,df[LCB].values],
-        [df[LAT].values, df[LAB].values],
-        [df[LPT].values, df[LPB].values],
-        [df[LMT].values, df[LMB].values],
-        [df[LLT].values, df[LLB].values]
-    ]
+
+
 
     for el in RS:
-        for a in el:
-            a[np.where(a=="n/a")] = np.nan
-            a[np.where(a == "nil")] = np.nan
 
-    return [subs,LS,RS]
+        for a in RS[el]:
+            RS[el][a][np.where(RS[el][a]=="n/a")] = np.nan
+            RS[el][a][np.where(RS[el][a] == "nil")] = np.nan
+            RS[el][a][np.where(RS[el][a] is None)] = np.nan
+
+    for el in LS:
+
+        for a in LS[el]:
+            LS[el][a][np.where(LS[el][a]=="n/a")] = np.nan
+            LS[el][a][np.where(LS[el][a] == "nil")] = np.nan
+            LS[el][a][np.where(LS[el][a] is None)] = np.nan
+
+    return [subs,{"left" : LS,"right": RS}]
 
 
 ################process

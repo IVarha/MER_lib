@@ -60,7 +60,9 @@ def covariance_method(data):
                 subdivisions[e_ind].append(da[e_ind,int(freq*times[i]):])
 
 
-
+    for i in range(da.shape[0]):
+        for j in range(len(times)):
+            subdivisions[i][j] = subdivisions[i][j] - np.nanmean(subdivisions[i][j])
 
     resarr = []
     for i in range(da.shape[0]):
@@ -71,6 +73,19 @@ def covariance_method(data):
         resarr.append(tmp)
     resarr = np.array(resarr)
     resarr = resarr.reshape((resarr.shape[0],resarr.shape[1]*resarr.shape[2]))
+
+    indmax = da.shape[0]
+    da = []
+
+    for i in range(indmax):
+        tmp = None
+        for j in range(len(times)):
+            if tmp is None:
+                tmp = subdivisions[i][j]
+            else:
+                tmp = np.concatenate((tmp,subdivisions[i][j]))
+        da.append(tmp)
+    da = np.array(da)
     da[resarr==0] = np.NAN
 
     res_markings = []
