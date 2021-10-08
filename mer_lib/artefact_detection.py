@@ -33,6 +33,7 @@ def max_diff_psd(data):
 
 
 def covariance_method(data):
+    """Covariance Method For artefact detection"""
     threshold = 1.2
 
     da = data.get_data()
