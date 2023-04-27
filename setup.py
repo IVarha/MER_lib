@@ -13,7 +13,7 @@ setup(
         'numpy>=1.20.3',
         'pyEDFlib>=0.1.22',
         'scipy>=1.6.3',
-        'statsmodels>=1.16.0'
+        'statsmodels'
 
     ]
 )

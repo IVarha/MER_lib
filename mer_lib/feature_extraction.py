@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 def rms_extraction(data):
     msk_threshold = data.mask_label_threshold
 
-    a = data.get_data()
+    a = data.data
     freqs = data.get_freqs()
 
     [times, ordered] = data.get_anat_landmarks()

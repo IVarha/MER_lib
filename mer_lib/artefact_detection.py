@@ -12,7 +12,7 @@ def max_diff_psd(data):
 
     psd_thr = 0.01
 
-    dat  = data.get_data()
+    dat  = data.data()
     freqs = data.get_freqs()
 
     res_data = []
@@ -36,7 +36,7 @@ def covariance_method(data):
     """Covariance Method For artefact detection"""
     threshold = 1.2
 
-    da = data.get_data()
+    da = data.data
 
     fs = data.get_freqs()
 
@@ -113,6 +113,13 @@ def covariance_method(data):
 
 
 def _compute_cov(signal, threshold, segm_len):
+    """
+
+    :param signal:
+    :param threshold:
+    :param segm_len:
+    :return:
+    """
     #normalise
     signal_t= (signal- np.nanmean(signal))/np.nanstd(signal)
 

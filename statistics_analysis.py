@@ -22,6 +22,10 @@ safe_subjects = [60, 62, 63, 66, 69, 70, 71, 73, 74, 75, 77, 78, 79, 81, 82, 83,
 # safe_subjects = [60]
 
 def read_all_subjects():
+    """
+    reads test data
+    :return:
+    """
     f = open("/home/varga/mer_data_processing/test", 'rb')
 
     dat = pickle.load(f)
@@ -54,6 +58,12 @@ def generate_mask_for_subject(subj_ind, subj, side, anat_labels):
 
 
 def combine_into_one_array(parsed_data):
+    """
+
+    :param parsed_data:
+    :return:
+    """
+
     comb_arr = parsed_data['right'] + parsed_data['left']
 
     comb_res = None
